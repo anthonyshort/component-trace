@@ -1,0 +1,18 @@
+{
+  "name": "component-trace",
+  "version": "0.0.1",
+  "description": "Find components that depend on another component",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bin": {
+    "component-trace": "./bin/component-trace"
+  },
+  "dependencies": {
+    "commander": "~2.0.0",
+    "walkdir": "~0.0.7"
+  }
+}

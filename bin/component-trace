@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+
+/**
+ * Update the files in the manifest using file glob patterns
+ *
+ *    $ component assets scripts:*.js styles:*.css images:*.css
+ */
+
+var program = require('commander');
+var walk = require('walkdir');
+
+program
+  .version(require('../package').version)
+  .usage('[name ...]')
+  .parse(process.argv);
+
+var deps = [];
+var walking = walk(process.cwd());
+
+walking.on('file', function(filename, stat){
+  if( /node\_modules/.test(filename) || !/component\.json$/.test(filename)) return;
+
+  try {
+    var manifest = require(filename);
+  }
+  catch(e) {
+    return;
+  }
+
+  if(matches(program.args[0], manifest)) {
+    return deps.push({
+      name: manifest.name,
+      path: filename.replace(process.cwd(), '')
+    });
+  }
+});
+
+walking.on('end', function(){
+  if(deps.length === 0) return console.log('No dependencies found.');
+  deps.forEach(function(dep){
+    console.log(dep.name + ' @ ' + dep.path);
+  });
+});
+
+function matches(name, manifest) {
+  var deps = manifest.dependencies || {};
+  var local = manifest.local || [];
+  return ( inArray(name,local) || inArray(name,Object.keys(deps)));
+}
+
+function inArray(value, arr) {
+  return arr.some(function(val){
+    return val === value;
+  });
+}
